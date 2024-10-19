@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: sqlserver
+    environment:
+      SA_PASSWORD: "Password123$"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    networks:
+      - sql-network
+
+  api:
+    build:
+      context: .
+      dockerfile: ProductManager.Api/Dockerfile
+    container_name: productmanager-api
+    environment:
+      - ConnectionStrings__ProductManagerConnection=Server=sqlserver;Database=ProductManager;User Id=sa;Password=Password123!;
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    depends_on:
+      - sqlserver
+    networks:
+      - sql-network
+
+networks:
+  sql-network:
+    driver: bridge

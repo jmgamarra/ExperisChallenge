@@ -1,47 +1,50 @@
-﻿using ProductManager.Application.Interfaces;
+﻿using Dapper;
+using ProductManager.Application.Interfaces;
 using ProductManager.Domain.Entities;
+using System.Data;
 
 namespace ProductManager.Infrastructure.Repositories
 {
     public class ProductRepository : IProductRepository
     {
-        private readonly List<Product> _products = new List<Product>();
+        private readonly IDbConnection _connection;
+
+        public ProductRepository(IDbConnection connection)
+        {
+            _connection = connection;
+        }
 
         public bool Create(Product product)
         {
-            product.Id = _products.Count + 1; // Id
-            _products.Add(product);
-            return true;
+            var query = "INSERT INTO Products (Name, Price, Quantity, UserId) VALUES (@Name, @Price, @Quantity, @UserId);";
+            var result = _connection.Execute(query, product);
+            return result > 0;
         }
 
         public List<Product> GetAll(int userId)
         {
-            return _products.Where(p => p.UserId == userId).ToList();
+            var query = "SELECT * FROM Products WHERE UserId = @UserId;";
+            return _connection.Query<Product>(query, new { UserId = userId }).ToList();
         }
 
         public Product GetById(int id)
         {
-            return _products.FirstOrDefault(p => p.Id == id);
+            var query = "SELECT * FROM Products WHERE ProductId = @Id;";
+            return _connection.QueryFirstOrDefault<Product>(query, new { Id = id });
         }
 
         public bool Update(Product product)
         {
-            var existingProduct = _products.FirstOrDefault(p => p.Id == product.Id);
-            if (existingProduct == null) return false;
-
-            existingProduct.Name = product.Name;
-            existingProduct.Price = product.Price;
-            existingProduct.Quantity = product.Quantity;
-            return true;
+            var query = "UPDATE Products SET Name = @Name, Price = @Price, Quantity = @Quantity WHERE ProductId = @Id;";
+            var result = _connection.Execute(query, product);
+            return result > 0;
         }
 
         public bool Delete(int id)
         {
-            var product = _products.FirstOrDefault(p => p.Id == id);
-            if (product == null) return false;
-
-            _products.Remove(product);
-            return true;
+            var query = "DELETE FROM Products WHERE ProductId = @Id;";
+            var result = _connection.Execute(query, new { Id = id });
+            return result > 0;
         }
     }
 }
