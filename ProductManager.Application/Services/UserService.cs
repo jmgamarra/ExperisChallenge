@@ -1,80 +1,68 @@
-﻿using ProductManager.Domain.Entities;
+﻿using ProductManager.Application.Interfaces;
+using ProductManager.Domain.Entities;
 
 namespace ProductManager.Application.Services
 {
     public class UserService
     {
-        private readonly List<User> _users = new List<User>();
-        private readonly List<UserSecurity> _userSecurities = new List<UserSecurity>();
+        private readonly IUserRepository _userRepository;
+        private readonly IUserSecurityRepository _userSecurityRepository;
+
+        public UserService(IUserRepository userRepository, IUserSecurityRepository userSecurityRepository)
+        {
+            _userRepository = userRepository;
+            _userSecurityRepository = userSecurityRepository;
+        }
+        public User GetUser(string userName)
+        {
+            // Llamamos al repositorio para obtener el usuario por nombre
+            return _userRepository.GetByName(userName);
+        }
 
         public bool Create(string name, string password)
         {
-            // Validaciones básicas
             if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(password))
                 return false;
 
-            // Verificar si el usuario ya existe
-            if (_users.Any(u => u.Name == name))
-                return false;
+            var existingUser = _userRepository.GetByName(name);
+            if (existingUser != null)
+                return false; // Usuario duplicado
 
-            // Crear usuario y agregarlo a la lista
-            var user = new User { Id = _users.Count + 1, Name = name };
-            _users.Add(user);
+            var user = new User { Name = name };
+            _userRepository.CreateUser(existingUser, password);
 
-            // Crear la seguridad del usuario con la contraseña encriptada
             var passwordHash = HashPassword(password);
             var userSecurity = new UserSecurity
             {
                 UserId = user.Id,
-                SecurityId = _userSecurities.Count + 1,
                 PasswordHash = passwordHash,
                 IsActive = true
             };
-            _userSecurities.Add(userSecurity);
-
-            return true;
+            return _userSecurityRepository.Create(userSecurity);
         }
 
-        public bool Login(string name, string password)
+        public bool Login(string userName, string password)
         {
-            // Buscar el usuario por nombre
-            var user = _users.FirstOrDefault(u => u.Name == name);
+            var user = _userRepository.GetByName(userName);
             if (user == null) return false;
 
-            // Obtener la seguridad del usuario
-            var userSecurity = _userSecurities.FirstOrDefault(us => us.UserId == user.Id);
-            if (userSecurity == null || !userSecurity.IsActive)
+            var userSecurity = _userSecurityRepository.GetByUserId(user.Id);
+            if (userSecurity == null || !VerifyPassword(password, userSecurity.PasswordHash))
                 return false;
 
-            // Verificar la contraseña
-            var passwordHash = HashPassword(password);
-            return userSecurity.PasswordHash == passwordHash;
+            return userSecurity.IsActive;
         }
 
-        public bool DeactivateUser(int userId)
-        {
-            var userSecurity = _userSecurities.FirstOrDefault(us => us.UserId == userId);
-            if (userSecurity == null) return false;
-
-            userSecurity.IsActive = false;
-            return true;
-        }
-
-        public List<User> GetAllUsers()
-        {
-            return _users;
-        }
-
-        public User GetUserById(int id)
-        {
-            return _users.FirstOrDefault(u => u.Id == id);
-        }
-
-        // Método auxiliar para simular el hash de la contraseña
         private string HashPassword(string password)
         {
-            // Usar una simulación de hash. En producción, usar un algoritmo seguro como BCrypt.
+            // Implementación simple de hashing (no segura, solo ejemplo)
             return Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(password));
+        }
+
+        private bool VerifyPassword(string password, string hash)
+        {
+            var hashedPassword = HashPassword(password);
+            return hashedPassword == hash;
         }
     }
 
