@@ -1,0 +1,13 @@
+# Configuración de .NET
+bin/
+obj/
+.vscode/
+.vs/
+*.user
+*.suo
+
+# Archivos de Docker
+docker-compose.override.yml
+
+# Archivos de entorno
+.env
