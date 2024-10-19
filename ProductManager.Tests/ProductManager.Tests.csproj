@@ -17,6 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ProductManager.Application\ProductManager.Application.csproj" />
+    <ProjectReference Include="..\ProductManager.Domain\ProductManager.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 

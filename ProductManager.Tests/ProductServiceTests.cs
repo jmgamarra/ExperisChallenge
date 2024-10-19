@@ -1,4 +1,7 @@
-﻿namespace ProductManager.Tests
+﻿using ProductManager.Application.Services;
+using ProductManager.Domain.Entities;
+
+namespace ProductManager.Tests
 {
     public class ProductServiceTests
     {
