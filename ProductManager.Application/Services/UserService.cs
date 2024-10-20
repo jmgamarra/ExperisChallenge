@@ -28,17 +28,17 @@ namespace ProductManager.Application.Services
             if (existingUser != null)
                 return false; // Usuario duplicado
 
-            var user = new User { Name = name };
-            _userRepository.CreateUser(existingUser, password);
+            var user = new User { UserName = name };
+            
 
-            var passwordHash = HashPassword(password);
-            var userSecurity = new UserSecurity
-            {
-                UserId = user.Id,
-                PasswordHash = passwordHash,
-                IsActive = true
-            };
-            return _userSecurityRepository.Create(userSecurity);
+            //var passwordHash = HashPassword(password);
+            //var userSecurity = new UserSecurity
+            //{
+            //    UserId = user.Id,
+            //    PasswordHash = passwordHash,
+            //    IsActive = true
+            //};
+            return _userRepository.CreateUser(user, password);
         }
 
         public bool Login(string userName, string password)

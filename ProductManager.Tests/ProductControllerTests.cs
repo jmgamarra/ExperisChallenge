@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
 using System.Net;
-using System.Net.Http.Json;
 
 namespace ProductManager.Tests
 {
@@ -22,11 +21,18 @@ namespace ProductManager.Tests
         }
 
         [Fact]
-        public async Task AddProduct_ShouldReturnCreated_WhenProductIsValid()
+        public async void AddProduct_ShouldReturnCreated_WhenProductIsValid()
         {
-            var product = new { Name = "Laptop", Price = 1000m, Quantity = 10, UserId = 1 };
-            var response = await _client.PostAsJsonAsync("/api/Product", product);
-            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            // Arrange
+            var product = new { Name = "Test Product", Price = 10.0 };
+            var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(product),
+                System.Text.Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/products", content);
+
+            // Assert
+            Assert.Equal(System.Net.HttpStatusCode.Created, response.StatusCode);
         }
     }
 }

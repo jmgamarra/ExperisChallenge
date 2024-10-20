@@ -37,13 +37,13 @@ namespace ProductManager.Tests
             var mockUserRepository = new Mock<IUserRepository>();
             var mockSecurityRepository = new Mock<IUserSecurityRepository>();
 
-            var existingUser = new User { Name = "testuser" };
-            mockUserRepository.Setup(repo => repo.GetByName(existingUser.Name)).Returns(existingUser);
+            var existingUser = new User { UserName = "testuser" };
+            mockUserRepository.Setup(repo => repo.GetByName(existingUser.UserName)).Returns(existingUser);
 
             var userService = new UserService(mockUserRepository.Object, mockSecurityRepository.Object);
 
             // Act
-            var result = userService.Create(existingUser.Name, "password123");
+            var result = userService.Create(existingUser.UserName, "password123");
 
             // Assert
             Assert.False(result);
@@ -56,7 +56,7 @@ namespace ProductManager.Tests
             var mockUserRepository = new Mock<IUserRepository>();
             var mockSecurityRepository = new Mock<IUserSecurityRepository>();
 
-            var user = new User { Id = 1, Name = "testuser" };
+            var user = new User { Id = 1, UserName = "testuser" };
             var userSecurity = new UserSecurity
             {
                 UserId = 1,
@@ -64,13 +64,13 @@ namespace ProductManager.Tests
                 IsActive = true
             };
 
-            mockUserRepository.Setup(repo => repo.GetByName(user.Name)).Returns(user);
+            mockUserRepository.Setup(repo => repo.GetByName(user.UserName)).Returns(user);
             mockSecurityRepository.Setup(repo => repo.GetByUserId(user.Id)).Returns(userSecurity);
 
             var userService = new UserService(mockUserRepository.Object, mockSecurityRepository.Object);
 
             // Act
-            var result = userService.Login(user.Name, "password123");
+            var result = userService.Login(user.UserName, "password123");
 
             // Assert
             Assert.True(result);
@@ -83,7 +83,7 @@ namespace ProductManager.Tests
             var mockUserRepository = new Mock<IUserRepository>();
             var mockSecurityRepository = new Mock<IUserSecurityRepository>();
 
-            var user = new User { Id = 1, Name = "testuser" };
+            var user = new User { Id = 1, UserName = "testuser" };
             var userSecurity = new UserSecurity
             {
                 UserId = 1,
@@ -91,13 +91,13 @@ namespace ProductManager.Tests
                 IsActive = true
             };
 
-            mockUserRepository.Setup(repo => repo.GetByName(user.Name)).Returns(user);
+            mockUserRepository.Setup(repo => repo.GetByName(user.UserName)).Returns(user);
             mockSecurityRepository.Setup(repo => repo.GetByUserId(user.Id)).Returns(userSecurity);
 
             var userService = new UserService(mockUserRepository.Object, mockSecurityRepository.Object);
 
             // Act
-            var result = userService.Login(user.Name, "wrongpassword");
+            var result = userService.Login(user.UserName, "wrongpassword");
 
             // Assert
             Assert.False(result);
@@ -110,7 +110,7 @@ namespace ProductManager.Tests
             var mockUserRepository = new Mock<IUserRepository>();
             var mockSecurityRepository = new Mock<IUserSecurityRepository>();
 
-            var user = new User { Id = 1, Name = "testuser" };
+            var user = new User { Id = 1, UserName = "testuser" };
             var userSecurity = new UserSecurity
             {
                 UserId = 1,
@@ -118,13 +118,13 @@ namespace ProductManager.Tests
                 IsActive = false
             };
 
-            mockUserRepository.Setup(repo => repo.GetByName(user.Name)).Returns(user);
+            mockUserRepository.Setup(repo => repo.GetByName(user.UserName)).Returns(user);
             mockSecurityRepository.Setup(repo => repo.GetByUserId(user.Id)).Returns(userSecurity);
 
             var userService = new UserService(mockUserRepository.Object, mockSecurityRepository.Object);
 
             // Act
-            var result = userService.Login(user.Name, "password123");
+            var result = userService.Login(user.UserName, "password123");
 
             // Assert
             Assert.False(result);

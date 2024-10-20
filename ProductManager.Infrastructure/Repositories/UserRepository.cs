@@ -16,15 +16,19 @@ namespace ProductManager.Infrastructure.Repositories
 
         public bool CreateUser(User user, string password)
         {
+            if (_connection.State != ConnectionState.Open)
+            {
+                _connection.Open();
+            }
             using var transaction = _connection.BeginTransaction();
 
             try
             {
                 // Inserta el usuario en la tabla Users
                 var insertUserQuery =
-                    "INSERT INTO Users (Name) OUTPUT INSERTED.Id VALUES (@Name);";
-                var userId = _connection.ExecuteScalar<int>(insertUserQuery, new { user.Name }, transaction);
-
+                    "INSERT INTO Users (UserName) OUTPUT INSERTED.UserId VALUES (@UserName);";
+                var userId = _connection.ExecuteScalar<int>(insertUserQuery, new { user.UserName }, transaction);
+                Console.WriteLine($"User ID: {userId}");
                 // Hash del password
                 var passwordHash = HashPassword(password);
 
@@ -41,7 +45,7 @@ namespace ProductManager.Infrastructure.Repositories
                 transaction.Commit();
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
                 transaction.Rollback();
                 return false;
@@ -50,8 +54,8 @@ namespace ProductManager.Infrastructure.Repositories
 
         public User GetByName(string name)
         {
-            var query = "SELECT * FROM Users WHERE Name = @Name;";
-            return _connection.QueryFirstOrDefault<User>(query, new { Name = name });
+            var query = "SELECT UserId as Id,UserName FROM Users WHERE UserName = @UserName;";
+            return _connection.QueryFirstOrDefault<User>(query, new { UserName = name });
         }
 
         public UserSecurity GetUserSecurity(int userId)

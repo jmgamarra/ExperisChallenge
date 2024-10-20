@@ -23,13 +23,13 @@ namespace ProductManager.Infrastructure.Repositories
 
         public List<Product> GetAll(int userId)
         {
-            var query = "SELECT * FROM Products WHERE UserId = @UserId;";
+            var query = "SELECT ProductId as Id,Name,Price,Quantity,UserId FROM Products WHERE UserId = @UserId;";
             return _connection.Query<Product>(query, new { UserId = userId }).ToList();
         }
 
         public Product GetById(int id)
         {
-            var query = "SELECT * FROM Products WHERE ProductId = @Id;";
+            var query = "SELECT Product as Id,Name,Price,Quantity,UserId FROM Products WHERE ProductId = @Id;";
             return _connection.QueryFirstOrDefault<Product>(query, new { Id = id });
         }
 

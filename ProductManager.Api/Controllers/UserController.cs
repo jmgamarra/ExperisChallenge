@@ -47,7 +47,7 @@ namespace ProductManager.Api.Controllers
             var userDto = new UserDto
             {
                 Id = user.Id,
-                Name = user.Name
+                Name = user.UserName
             };
 
             return Ok(userDto);

@@ -1,10 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+	<Target Name="RenameDepsJson" AfterTargets="Build">
+		<Copy SourceFiles="$(OutputPath)ProductManager.Api.deps.json" DestinationFiles="$(OutputPath)testhost.deps.json" />
+	</Target>
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-
+	 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
@@ -19,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ProductManager.Api\ProductManager.Api.csproj" />
     <ProjectReference Include="..\ProductManager.Application\ProductManager.Application.csproj" />
     <ProjectReference Include="..\ProductManager.Domain\ProductManager.Domain.csproj" />
   </ItemGroup>

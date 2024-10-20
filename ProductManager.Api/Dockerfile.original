@@ -4,15 +4,12 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER app
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 443
+EXPOSE 8081
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["ProductManager.Api/ProductManager.Api.csproj", "ProductManager.Api/"]
-COPY ["ProductManager.Application/ProductManager.Application.csproj", "ProductManager.Application/"]
-COPY ["ProductManager.Domain/ProductManager.Domain.csproj", "ProductManager.Domain/"]
-COPY ["ProductManager.Infrastructure/ProductManager.Infrastructure.csproj", "ProductManager.Infrastructure/"]
 RUN dotnet restore "./ProductManager.Api/ProductManager.Api.csproj"
 COPY . .
 WORKDIR "/src/ProductManager.Api"
