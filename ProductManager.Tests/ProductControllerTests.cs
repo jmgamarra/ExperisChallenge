@@ -34,5 +34,20 @@ namespace ProductManager.Tests
             // Assert
             Assert.Equal(System.Net.HttpStatusCode.Created, response.StatusCode);
         }
+
+        [Fact]
+        public async Task GetAllProducts_ShouldReturnOk_WhenProductFail()
+        {
+            // Arrange
+            var product = new { Name = "", Price = -10.0 };
+            var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(product),
+                System.Text.Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.PostAsync("/api/products", content);
+
+            // Assert
+            Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+        }
     }
 }

@@ -20,32 +20,29 @@ namespace ProductManager.Infrastructure.Repositories
             {
                 _connection.Open();
             }
-            using var transaction = _connection.BeginTransaction();
 
+            using var transaction = _connection.BeginTransaction();
             try
             {
-                // Inserta el usuario en la tabla Users
-                var insertUserQuery =
-                    "INSERT INTO Users (UserName) OUTPUT INSERTED.UserId VALUES (@UserName);";
-                var userId = _connection.ExecuteScalar<int>(insertUserQuery, new { user.UserName }, transaction);
-                Console.WriteLine($"User ID: {userId}");
-                // Hash del password
                 var passwordHash = HashPassword(password);
 
-                // Inserta la seguridad del usuario en UserSecurity
-                var insertSecurityQuery =
-                    "INSERT INTO UserSecurity (UserId, PasswordHash, IsActive) VALUES (@UserId, @PasswordHash, @IsActive);";
-                _connection.Execute(insertSecurityQuery, new
-                {
-                    UserId = userId,
-                    PasswordHash = passwordHash,
-                    IsActive = true
-                }, transaction);
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserName", user.UserName);
+                parameters.Add("@PasswordHash", passwordHash);
+                parameters.Add("@IsActive", true);
+
+                // Llamar al procedimiento almacenado CreateUser
+                _connection.Execute(
+                    "CreateUser",
+                    parameters,
+                    transaction: transaction,
+                    commandType: CommandType.StoredProcedure
+                );
 
                 transaction.Commit();
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
                 transaction.Rollback();
                 return false;
@@ -54,14 +51,26 @@ namespace ProductManager.Infrastructure.Repositories
 
         public User GetByName(string name)
         {
-            var query = "SELECT UserId as Id,UserName FROM Users WHERE UserName = @UserName;";
-            return _connection.QueryFirstOrDefault<User>(query, new { UserName = name });
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserName", name);
+
+            return _connection.QueryFirstOrDefault<User>(
+                "GetUserByName",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
         }
 
         public UserSecurity GetUserSecurity(int userId)
         {
-            var query = "SELECT * FROM UserSecurity WHERE UserId = @UserId;";
-            return _connection.QueryFirstOrDefault<UserSecurity>(query, new { UserId = userId });
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId", userId);
+
+            return _connection.QueryFirstOrDefault<UserSecurity>(
+                "GetUserSecurityByUserId",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
         }
 
         private string HashPassword(string password)

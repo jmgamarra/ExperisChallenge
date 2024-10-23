@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProductManager.Api.DTOs;
 using ProductManager.Application.Services;
 using ProductManager.Domain.Entities;
 
@@ -16,8 +17,12 @@ namespace ProductManager.Api.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddProduct([FromBody] Product product)
+        public IActionResult AddProduct([FromBody] AddProductDto oProduct)
         {
+            Product product = new Product();
+            product.Name = oProduct.Name;
+            product.Price = oProduct.Price;
+            product.Quantity = oProduct.Quantity;
             var result = _productService.AddProduct(product);
             if (!result) return BadRequest("Invalid product data.");
 
@@ -41,8 +46,13 @@ namespace ProductManager.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateProduct(int id, [FromBody] Product product)
+        public IActionResult UpdateProduct(int id, [FromBody] UpdateProductDto oProduct)
         {
+            Product product = new Product();
+            product.Id = id;
+            product.Name = oProduct.Name;
+            product.Price = oProduct.Price;
+            product.Quantity = oProduct.Quantity;
             if (id != product.Id) return BadRequest();
 
             var result = _productService.UpdateProduct(product);
@@ -58,6 +68,12 @@ namespace ProductManager.Api.Controllers
             if (!result) return NotFound();
 
             return NoContent();
+        }
+
+        [HttpGet("throw")]
+        public IActionResult ThrowException()
+        {
+            throw new Exception("Esta es una excepción capturada");
         }
     }
 }

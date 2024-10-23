@@ -16,18 +16,30 @@ namespace ProductManager.Infrastructure.Repositories
 
         public bool Create(UserSecurity userSecurity)
         {
-            var query = @"
-                INSERT INTO UserSecurity (UserId, PasswordHash, IsActive) 
-                VALUES (@UserId, @PasswordHash, @IsActive);";
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId", userSecurity.UserId);
+            parameters.Add("@PasswordHash", userSecurity.PasswordHash);
+            parameters.Add("@IsActive", userSecurity.IsActive);
 
-            var result = _connection.Execute(query, userSecurity);
+            var result = _connection.Execute(
+                "CreateUserSecurity",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
             return result > 0;
         }
 
         public UserSecurity GetByUserId(int userId)
         {
-            var query = "SELECT * FROM UserSecurity WHERE UserId = @UserId;";
-            return _connection.QueryFirstOrDefault<UserSecurity>(query, new { UserId = userId });
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId", userId);
+
+            return _connection.QueryFirstOrDefault<UserSecurity>(
+                "GetUserSecurityByUserId",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
         }
     }
 
